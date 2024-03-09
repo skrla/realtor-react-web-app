@@ -7,6 +7,7 @@ export default function PrivateRoute() {
     const {loggedIn, checkingStatus} = useAuthStatus();
 
     if(checkingStatus) {
+        console.log(checkingStatus)
         return <h3>Loading...</h3>
     }
 
