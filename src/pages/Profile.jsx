@@ -1,11 +1,12 @@
-import { getAuth, updateCurrentUser, updateProfile } from 'firebase/auth';
-import React, { useState } from 'react'
+import { getAuth, updateProfile } from 'firebase/auth';
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
-import {doc, updateDoc } from 'firebase/firestore'
+import {query, collection, doc, query, updateDoc, orderBy, getDoc } from 'firebase/firestore'
 import {db} from '../firebase'
 import { FcHome } from "react-icons/fc";
 import { Link } from 'react-router-dom';
+import ListingItem from '../components/ListingItem';
 
  
 export default function Profile() {
@@ -13,7 +14,8 @@ export default function Profile() {
   const auth = getAuth();
   const navigate = useNavigate();
   const [changeName, setChangeName] = useState(false);
-
+  const [listings, setListings] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: auth.currentUser.displayName,
     email: auth.currentUser.email
@@ -50,6 +52,25 @@ export default function Profile() {
       toast.error("Could not update the profile details")
     }
   }
+
+  useEffect(() => {
+
+    async function fetchUserListings(){
+      const listingRef = collection(db, "listings");
+      const q = query(listingRef, where("userRef", "==", auth.currentUser.uid), orderBy("timestamp", "desc"));
+      const querySnap = await getDoc(q);
+      let listings = [];
+      querySnap.forEach((doc) => {
+        return listings.push({
+          id: doc.id,
+          data: doc.data(),
+        })
+      });
+      setListings(listings);
+      setLoading(false);
+    }
+    fetchUserListings();
+  }, [auth.currentUser.uid]);
 
   return (
     <>
@@ -92,6 +113,18 @@ export default function Profile() {
           </button>
         </div>
       </section>
+      <div>
+        {!loading && listings.length > 0 && (
+          <>
+            <h2 className='text-2xl text-center font-semibold '>My Listing</h2>
+            <ul>
+              {listings.map((listings) => (
+                <ListingItem key={listings.id} id={listings.id} listing={listings.data} />
+              ))}
+            </ul>
+          </>
+        )} 
+      </div>
     </>
   )
 }
