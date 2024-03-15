@@ -7,9 +7,6 @@ jobs:
   generate-env:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
       - name: Generate .env file
         run: |
           echo "FIREBASE_KEY=${{ secrets.FIREBASE_KEY }}" >> .env
