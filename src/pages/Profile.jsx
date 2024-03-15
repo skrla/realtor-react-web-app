@@ -2,7 +2,7 @@ import { getAuth, updateProfile } from 'firebase/auth';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
-import {query, collection, doc, query, updateDoc, orderBy, getDoc } from 'firebase/firestore'
+import {query, collection, doc, updateDoc, orderBy, where, getDocs } from 'firebase/firestore'
 import {db} from '../firebase'
 import { FcHome } from "react-icons/fc";
 import { Link } from 'react-router-dom';
@@ -53,12 +53,13 @@ export default function Profile() {
     }
   }
 
+
   useEffect(() => {
 
     async function fetchUserListings(){
       const listingRef = collection(db, "listings");
       const q = query(listingRef, where("userRef", "==", auth.currentUser.uid), orderBy("timestamp", "desc"));
-      const querySnap = await getDoc(q);
+      const querySnap = await getDocs(q);
       let listings = [];
       querySnap.forEach((doc) => {
         return listings.push({

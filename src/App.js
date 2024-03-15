@@ -11,7 +11,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import PrivateRoute from "./components/PrivateRoute";
 import CreateListing from "./pages/CreateListing";
 
-
 function App() {
   return (
     <>
