@@ -5,7 +5,7 @@ import { db } from '../firebase';
 import Spinner from '../components/Spinner';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectFade, Autoplay, Navigation, Pagination } from "swiper/modules";
-import "swiper/css/bundle";
+import 'swiper/swiper-bundle.css';
 import { FaShare, FaMapMarkerAlt, FaBed, FaBath, FaParking, FaChair } from 'react-icons/fa'
 import ListingIcons from "../components/listing/ListingIcons";
 import {getAuth} from "firebase/auth";
@@ -138,7 +138,7 @@ export default function Listing() {
                             />
                             <Marker position={listing.geolocation}>
                                 <Popup>
-                                    A pretty CSS3 popup. <br /> Easily customizable.
+                                    {listing.address}
                                 </Popup>
                             </Marker>
                         </MapContainer>
