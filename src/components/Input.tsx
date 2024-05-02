@@ -18,8 +18,9 @@ function Input({ type = 'text', name, id, value, onChange, className, onKeyDown,
       id={id}
       value={value}
       onChange={onChange}
+      disabled={disabled}
       placeholder={`Enter ${name}`}
-      className={`w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out ${className}`}
+      className={`w-full px-4 py-2 text-xl text-gray-700 border-gray-300 rounded transition ease-in-out ${className}`}
     />
   );
 }

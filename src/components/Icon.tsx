@@ -13,7 +13,7 @@ function Icon({ IconName, size, className, loading, onClick }: IconProps) {
     <IconName
       size={size}
       onClick={onClick}
-      className={`text-xl cursor-pointer ${className}`}
+      className={`cursor-pointer ${className}`}
     />
   );
 }
