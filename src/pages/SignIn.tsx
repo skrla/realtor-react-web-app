@@ -5,7 +5,7 @@ export default function SignIn() {
   return (
     <section>
       <H1 title="Sign In" />
-      <AuthForm />
+      <AuthForm type="singIn" />
     </section>
   );
 }
