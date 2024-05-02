@@ -5,7 +5,7 @@ type H1PropsType = {
   className?: string;
 };
 
-function H1({className, title}: H1PropsType) {
+function H1({className, title, }: H1PropsType) {
   return (
     <h1 className={`text-3xl text-center mt-6 font-bold ${className}`}>
         {title}
