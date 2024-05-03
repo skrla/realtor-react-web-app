@@ -46,7 +46,7 @@ export const fetchListingsOffer = async (
 ) => {
   try {
     const listingRef = collection(db, listingDb);
-    let q
+    let q;
     if (lastFetchedListing !== null) {
       q = query(
         listingRef,
@@ -77,4 +77,18 @@ export const fetchListingsOffer = async (
   } catch (error) {
     toast.error("Could not fetch listing");
   }
+};
+
+export const fetchListingsSpinner = async () => {
+  const listingsRef = collection(db, "listings");
+  const q = query(listingsRef, orderBy("timestamp", "desc"), limit(5));
+  const querySnap = await getDocs(q);
+  let listings: ListingType[] = [];
+  querySnap.forEach((doc) => {
+    return listings.push({
+      id: doc.id,
+      ...(doc.data() as ListingFirebaseType),
+    });
+  });
+  return listings;
 };
