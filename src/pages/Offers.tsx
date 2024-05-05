@@ -13,10 +13,6 @@ export default function Offers() {
   const [lastFetchedListing, setLastFetchedListing] =
     useState<QueryDocumentSnapshot<DocumentData, DocumentData> | null>(null);
 
-  useEffect(() => {
-    fetchListings();
-  }, []);
-
   async function fetchListings() {
     const fetch = await fetchListingsOffer(lastFetchedListing);
     if (fetch) {
@@ -26,6 +22,10 @@ export default function Offers() {
     }
     setLoading(false);
   }
+
+  useEffect(() => {
+    fetchListings();
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto px-3">
