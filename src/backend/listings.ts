@@ -79,6 +79,45 @@ export const fetchListingsOffer = async (
   }
 };
 
+export const fetchListingsCategory = async (
+  lastFetchedListing: QueryDocumentSnapshot<unknown, DocumentData> | null,
+  category: string
+) => {
+  try {
+    const listingRef = collection(db, listingDb);
+    let q;
+    if (lastFetchedListing !== null) {
+      q = query(
+        listingRef,
+        where("type", "==", category),
+        orderBy("timestamp", "desc"),
+        startAfter(lastFetchedListing),
+        limit(4)
+      );
+    } else {
+      q = query(
+        listingRef,
+        where("type", "==", category),
+        orderBy("timestamp", "desc"),
+        limit(8)
+      );
+    }
+    const querySnap = await getDocs(q);
+
+    const listings: ListingType[] = [];
+    querySnap.forEach((doc) => {
+      return listings.push({
+        id: doc.id,
+        ...(doc.data() as ListingFirebaseType),
+      });
+    });
+    const lastVisible = querySnap.docs[querySnap.docs.length - 1];
+    return { listings, lastVisible };
+  } catch (error) {
+    toast.error("Could not fetch listing");
+  }
+};
+
 export const fetchListingsSpinner = async () => {
   const listingsRef = collection(db, "listings");
   const q = query(listingsRef, orderBy("timestamp", "desc"), limit(5));
