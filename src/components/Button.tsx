@@ -2,6 +2,8 @@ import React from "react";
 
 type ButtonPropsType = {
   text?: string;
+  id?: string;
+  value?: string;
   className?: string;
   secondary?: boolean;
   onClick?: () => void;
@@ -12,6 +14,8 @@ type ButtonPropsType = {
 
 function Button({
   text,
+  id,
+  value,
   className,
   secondary,
   onClick,
@@ -21,6 +25,8 @@ function Button({
 }: ButtonPropsType) {
   return (
     <button
+      id={id}
+      value={value}
       onClick={onClick}
       className={`transition duration-150 ease-in-out px-7 text-sm font-medium uppercase rounded shadow-md ${
         secondary
