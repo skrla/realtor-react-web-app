@@ -1,9 +1,9 @@
 import React from "react";
 
 type InputPropsType = {
-  name: string;
   id: string;
-  value?: string;
+  name?: string;
+  value?: string | number;
   type?: string;
   onChange?: (e: any) => void;
   className?: string;
@@ -12,6 +12,8 @@ type InputPropsType = {
   maxLength?: number;
   minLength?: number;
   required?: boolean;
+  min?: number;
+  max?: number;
 };
 
 function Input({
@@ -26,6 +28,8 @@ function Input({
   maxLength,
   minLength,
   required,
+  min,
+  max,
 }: InputPropsType) {
   return (
     <input
@@ -37,6 +41,8 @@ function Input({
       maxLength={maxLength}
       minLength={minLength}
       required
+      min={min}
+      max={max}
       placeholder={`Enter ${name}`}
       className={`w-full px-4 py-2 text-xl text-gray-700 border-gray-300 rounded transition ease-in-out ${className}`}
     />

@@ -41,3 +41,19 @@ export type ListingFirebaseType = {
   userRef: string;
   discountedPrice?: string;
 };
+
+export type CreateListingType = {
+  address: string;
+  bathrooms: number;
+  bedrooms: number;
+  description: string;
+  furnished: boolean;
+  geoLocation: LocationType;
+  imgUrls: FileList | null;
+  offer: boolean;
+  parking: boolean;
+  regularPrice: number;
+  title: string;
+  type: string;
+  discountedPrice?: number;
+};

@@ -1,10 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 import CreateListingLabel from "./CreateListingLabel";
 import Button from "../Button";
-import { onChange } from "react-toastify/dist/core/store";
 import Input from "../Input";
+import { getAuth } from "firebase/auth";
+import { useNavigate } from "react-router";
+import { CreateListingType } from "../../types/listingTypes";
+import { saveListing } from "../../backend/listings";
 
 function CreateListingForm() {
+  const [geoLocationEnabled, setGeoLocationEnabled] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const auth = getAuth();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState<CreateListingType>({
+    type: "rent",
+    title: "",
+    bedrooms: 1,
+    bathrooms: 1,
+    parking: false,
+    furnished: false,
+    address: "",
+    description: "",
+    offer: false,
+    regularPrice: 0,
+    discountedPrice: 0,
+    imgUrls: null,
+    geoLocation: {
+      lat: 0,
+      lng: 0,
+    },
+  });
+
+  function onChange(e: any) {
+    let boolean = null;
+    if (e.target.value === "true") {
+      boolean = true;
+    }
+    if (e.target.value === "false") {
+      boolean = false;
+    }
+    if (e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        images: e.target.files,
+      }));
+    }
+    if (!e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        [e.target.id]: boolean ?? e.target.value,
+      }));
+    }
+  }
+
+  async function onSubmit(e: any) {
+    e.preventDefault();
+    const docId = await saveListing(
+      setLoading,
+      formData,
+      geoLocationEnabled,
+      auth
+    );
+    if (docId) {
+      navigate(`/category/${formData.type}/${docId}`);
+    }
+  }
+
   return (
     <form onSubmit={onSubmit}>
       <CreateListingLabel text="Sell / Rent" />
@@ -22,7 +83,9 @@ function CreateListingForm() {
           value="sell"
           onClick={onChange}
           className={`mr-3 uppercase px-7 py-3 font-medium text-sm  shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
-            type === "rent" ? "bg-white text-black" : "bg-slate-600 text-white"
+            formData.type === "rent"
+              ? "bg-white text-black"
+              : "bg-slate-600 text-white"
           }`}
         >
           sell
@@ -40,7 +103,9 @@ function CreateListingForm() {
           value="rent"
           onClick={onChange}
           className={`ml-3 uppercase px-7 py-3 font-medium text-sm  shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
-            type === "sell" ? "bg-white text-black" : "bg-slate-600 text-white"
+            formData.type === "sell"
+              ? "bg-white text-black"
+              : "bg-slate-600 text-white"
           }`}
         >
           rent
@@ -51,7 +116,7 @@ function CreateListingForm() {
       <Input
         type="text"
         id="title"
-        value={title}
+        value={formData.title}
         onChange={onChange}
         name="Title"
         maxLength={32}
@@ -62,7 +127,7 @@ function CreateListingForm() {
       <input
         type="text"
         id="title"
-        value={title}
+        value={formData.title}
         onChange={onChange}
         placeholder="Title"
         maxLength={32}
@@ -74,10 +139,20 @@ function CreateListingForm() {
       <div className="flex space-x-6 mb-6">
         <div>
           <p className="text-lg font-semibold">Beds</p>
+          <Input
+            type="number"
+            id="bedrooms"
+            value={formData.bedrooms}
+            onChange={onChange}
+            min={1}
+            max={50}
+            required
+            className="focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6"
+          />
           <input
             type="number"
             id="bedrooms"
-            value={bedrooms}
+            value={formData.bedrooms}
             onChange={onChange}
             min="1"
             max="50"
@@ -89,10 +164,20 @@ function CreateListingForm() {
         </div>
         <div>
           <p className="text-lg font-semibold">Baths</p>
+          <Input
+            type="number"
+            id="bathrooms"
+            value={formData.bathrooms}
+            onChange={onChange}
+            min={1}
+            max={50}
+            required
+            className="focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6"
+          />
           <input
             type="number"
             id="bathrooms"
-            value={bathrooms}
+            value={formData.bathrooms}
             onChange={onChange}
             min="1"
             max="50"
@@ -106,24 +191,40 @@ function CreateListingForm() {
 
       <CreateListingLabel text="Parking spot" />
       <div className="flex">
+        <Button
+          id="parking"
+          type="button"
+          value="true"
+          onClick={onChange}
+          secondary
+          text="yes"
+        />
         <button
           type="button"
           id="parking"
-          value={true}
           onClick={onChange}
           className={`mr-3 uppercase px-7 py-3 font-medium text-sm  shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
-            !parking ? "bg-white text-black" : "bg-slate-600 text-white"
+            !formData.parking
+              ? "bg-white text-black"
+              : "bg-slate-600 text-white"
           }`}
         >
           yes
         </button>
+        <Button
+          id="parking"
+          type="button"
+          value="false"
+          onClick={onChange}
+          secondary
+          text="no"
+        />
         <button
           type="button"
           id="parking"
-          value={false}
           onClick={onChange}
           className={`ml-3 uppercase px-7 py-3 font-medium text-sm  shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
-            parking ? "bg-white text-black" : "bg-slate-600 text-white"
+            formData.parking ? "bg-white text-black" : "bg-slate-600 text-white"
           }`}
         >
           no
@@ -132,24 +233,42 @@ function CreateListingForm() {
 
       <CreateListingLabel text="Furnished" />
       <div className="flex">
+        <Button
+          id="furnished"
+          type="button"
+          value="true"
+          onClick={onChange}
+          secondary
+          text="yes"
+        />
         <button
           type="button"
           id="furnished"
-          value={true}
           onClick={onChange}
           className={`mr-3 uppercase px-7 py-3 font-medium text-sm  shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
-            !furnished ? "bg-white text-black" : "bg-slate-600 text-white"
+            !formData.furnished
+              ? "bg-white text-black"
+              : "bg-slate-600 text-white"
           }`}
         >
           yes
         </button>
+        <Button
+          id="furnished"
+          type="button"
+          value="false"
+          onClick={onChange}
+          secondary
+          text="no"
+        />
         <button
           type="button"
           id="furnished"
-          value={false}
           onClick={onChange}
           className={`ml-3 uppercase px-7 py-3 font-medium text-sm  shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
-            furnished ? "bg-white text-black" : "bg-slate-600 text-white"
+            formData.furnished
+              ? "bg-white text-black"
+              : "bg-slate-600 text-white"
           }`}
         >
           no
@@ -158,9 +277,8 @@ function CreateListingForm() {
 
       <CreateListingLabel text="Address" />
       <textarea
-        type="text"
         id="address"
-        value={address}
+        value={formData.address}
         onChange={onChange}
         placeholder="Address"
         required
@@ -172,10 +290,20 @@ function CreateListingForm() {
         <div className="flex space-x-6">
           <div>
             <CreateListingLabel text="Latitude" />
+            <Input
+              type="number"
+              id="latitude"
+              value={formData.geoLocation.lat}
+              onChange={onChange}
+              min={-90}
+              max={90}
+              required
+              className="focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6"
+            />
             <input
               type="number"
               id="latitude"
-              value={latitude}
+              value={formData.geoLocation.lat}
               min="-90"
               max="90"
               onChange={onChange}
@@ -187,10 +315,20 @@ function CreateListingForm() {
           </div>
           <div>
             <CreateListingLabel text="Longitude" />
+            <Input
+              type="number"
+              id="longitude"
+              value={formData.geoLocation.lng}
+              onChange={onChange}
+              min={-180}
+              max={180}
+              required
+              className="focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6"
+            />
             <input
               type="number"
               id="longitude"
-              value={longitude}
+              value={formData.geoLocation.lng}
               min="-180"
               max="180"
               onChange={onChange}
@@ -205,9 +343,8 @@ function CreateListingForm() {
 
       <CreateListingLabel text="Description" />
       <textarea
-        type="text"
         id="description"
-        value={description}
+        value={formData.description}
         onChange={onChange}
         placeholder="Description"
         required
@@ -217,24 +354,38 @@ function CreateListingForm() {
 
       <CreateListingLabel text="Offer" />
       <div className="flex">
+        <Button
+          id="offer"
+          type="button"
+          value="true"
+          onClick={onChange}
+          secondary
+          text="yes"
+        />
         <button
           type="button"
           id="offer"
-          value={true}
           onClick={onChange}
           className={`mr-3 uppercase px-7 py-3 font-medium text-sm  shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
-            !offer ? "bg-white text-black" : "bg-slate-600 text-white"
+            !formData.offer ? "bg-white text-black" : "bg-slate-600 text-white"
           }`}
         >
           yes
         </button>
+        <Button
+          id="offer"
+          type="button"
+          value="false"
+          onClick={onChange}
+          secondary
+          text="no"
+        />
         <button
           type="button"
           id="offer"
-          value={false}
           onClick={onChange}
           className={`ml-3 uppercase px-7 py-3 font-medium text-sm  shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
-            offer ? "bg-white text-black" : "bg-slate-600 text-white"
+            formData.offer ? "bg-white text-black" : "bg-slate-600 text-white"
           }`}
         >
           no
@@ -243,10 +394,20 @@ function CreateListingForm() {
 
       <CreateListingLabel text="Regular price" />
       <div className="mb-6 flex w-full justify-center items-center space-x-6">
+        <Input
+          type="number"
+          id="regularPrice"
+          value={formData.regularPrice}
+          onChange={onChange}
+          min={50}
+          max={40000000}
+          required
+          className="focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6"
+        />
         <input
           type="number"
           id="regularPrice"
-          value={regularPrice}
+          value={formData.regularPrice}
           onChange={onChange}
           min="50"
           max="40000000"
@@ -255,29 +416,39 @@ function CreateListingForm() {
                 text-gray-700 bg-white border border-gray-300 focus:text-gray-700 focus:bg-white
                 focus:border-slate-600 text-center"
         />
-        {type === "rent" && (
+        {formData.type === "rent" && (
           <div>
             <p className="text-md w-full whitespace-nowrap">$ / Month</p>
           </div>
         )}
       </div>
-      {offer && (
+      {formData.offer && (
         <div>
           <CreateListingLabel text="Discounted price" />
           <div className="mb-6 flex w-full justify-center items-center space-x-6">
+            <Input
+              type="number"
+              id="discountedPrice"
+              value={formData.discountedPrice}
+              onChange={onChange}
+              min={50}
+              max={40000000}
+              required
+              className="focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6"
+            />
             <input
               type="number"
               id="discountedPrice"
-              value={discountedPrice}
+              value={formData.discountedPrice}
               onChange={onChange}
               min="50"
               max="40000000"
-              required={offer}
+              required={formData.offer}
               className="w-full  px-4 py-2 text-xl rounded transition duration-150 ease-in-out
                         text-gray-700 bg-white border border-gray-300 focus:text-gray-700 focus:bg-white
                         focus:border-slate-600 text-center"
             />
-            {type === "rent" && (
+            {formData.type === "rent" && (
               <div>
                 <p className="text-md w-full whitespace-nowrap">$ / Month</p>
               </div>
@@ -302,6 +473,7 @@ function CreateListingForm() {
                 rounded transition duration-150 ease-in-out focus:bg-white focus:border-slate-600"
         />
       </div>
+      <Button id="sub" type="submit" text="Create Listing" />
       <button
         type="submit"
         className="my-6 w-full px-7 py-3 

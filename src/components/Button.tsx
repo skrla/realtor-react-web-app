@@ -3,10 +3,10 @@ import React from "react";
 type ButtonPropsType = {
   text?: string;
   id?: string;
-  value?: string;
+  value?: string | number;
   className?: string;
   secondary?: boolean;
-  onClick?: () => void;
+  onClick?: (e: any) => void;
   loading?: boolean;
   type?: "submit" | "reset" | "button" | undefined;
   children?: any;
